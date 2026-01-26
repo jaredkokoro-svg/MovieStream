@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Server, Globe, Settings } from 'lucide-react';
 
 export default function VideoPlayer({ id }: { id: string }) {
-  // LISTA DE SERVIDORES
   const servers = [
     { name: "Plus (Rápido)", url: `https://vidsrc.to/embed/movie/${id}` },
     { name: "Alpha (Estable)", url: `https://vidsrc.me/embed/movie?tmdb=${id}` },
@@ -17,7 +16,6 @@ export default function VideoPlayer({ id }: { id: string }) {
   return (
     <div className="space-y-4">
       
-      {/* 1. EL REPRODUCTOR */}
       <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10 relative group">
         <iframe 
           key={currentServer.name}
@@ -29,7 +27,6 @@ export default function VideoPlayer({ id }: { id: string }) {
         />
       </div>
 
-      {/* 2. SELECTOR DE SERVIDORES */}
       <div className="bg-[#1a1a1a] p-4 rounded-xl border border-white/5">
         <div className="flex items-center gap-2 mb-3 text-gray-400 text-sm font-bold uppercase tracking-wider">
           <Server size={14} /> Seleccionar Servidor
@@ -54,10 +51,10 @@ export default function VideoPlayer({ id }: { id: string }) {
           ))}
         </div>
         
-        {/* CORRECCIÓN AQUÍ: Usamos comillas simples 'CC' en lugar de dobles "CC" */}
+        {/* CORRECCIÓN: Quitamos las comillas para evitar errores de linting */}
         <p className="mt-3 text-xs text-gray-500 flex items-center gap-1">
           <Settings size={12} />
-          Nota: Si no hay audio latino, busca el icono 'CC' o 'Settings' dentro del reproductor.
+          Nota: Si no hay audio latino, busca el icono CC o Settings dentro del reproductor.
         </p>
       </div>
 
