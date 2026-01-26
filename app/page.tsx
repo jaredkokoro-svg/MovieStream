@@ -1,123 +1,145 @@
 import { getTrending, getPopularMovies, getPopularSeries } from './lib/tmdb';
-import { Play, Info } from 'lucide-react';
-import Link from 'next/link'; // <--- IMPORTANTE: Importamos esto para navegar
+import { Play, Info, Star } from 'lucide-react';
+import Link from 'next/link';
 
 export default async function HomePage() {
-  // 1. Pedimos los datos al servidor
   const trending = await getTrending();
   const movies = await getPopularMovies();
   const series = await getPopularSeries();
 
-  // Tomamos la primera película para el Banner Gigante
   const heroMovie = trending[0];
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-white pb-20">
-      {/* --- 1. HERO SECTION (BANNER TIPO TV) --- */}
-      <div className="relative w-full h-[70vh] md:h-[85vh]">
-        {/* Imagen de Fondo */}
+    <div className="min-h-screen bg-[#0a0a0a] text-white pb-20 font-sans">
+      
+      {/* --- 1. HERO SECTION PREMIUM --- */}
+      <div className="relative w-full h-[85vh] md:h-[95vh] flex items-end">
+        
+        {/* A. Imagen de Fondo (Full Quality) */}
         <div className="absolute inset-0">
-          <img
-            src={`https://image.tmdb.org/t/p/original${heroMovie.backdrop_path}`}
-            alt={heroMovie.title || heroMovie.name}
-            className="w-full h-full object-cover opacity-60"
+          <img 
+            src={`https://image.tmdb.org/t/p/original${heroMovie.backdrop_path}`} 
+            alt={heroMovie.title}
+            className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-[#0f0f0f]/40 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0f0f0f] via-transparent to-transparent" />
+          
+          {/* B. Truco de Magia: VIGNETTE & DEGRADADOS */}
+          {/* Oscurece arriba para que se vea el menú */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-transparent h-32" />
+          
+          {/* Oscurece los lados (estilo cine) */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60" />
+          
+          {/* Oscurece abajo para conectar con el contenido */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/50 to-transparent" />
         </div>
 
-        {/* Información del Banner */}
-        <div className="absolute bottom-0 left-0 p-8 md:p-16 max-w-2xl space-y-4">
-          <span className="bg-red-600 text-white px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
-            #1 en Tendencias
-          </span>
-          <h1 className="text-4xl md:text-6xl font-black leading-tight drop-shadow-xl">
-            {heroMovie.title || heroMovie.name}
-          </h1>
-          <p className="text-gray-300 line-clamp-3 md:text-lg drop-shadow-md">
-            {heroMovie.overview}
-          </p>
+        {/* C. Contenido del Banner */}
+        <div className="relative z-10 w-full container mx-auto px-6 md:px-12 mb-20 md:mb-32">
+          <div className="max-w-3xl space-y-6 animate-fade-in-up">
+            
+            {/* Badges / Etiquetas */}
+            <div className="flex items-center gap-3">
+              <span className="bg-red-600 text-white px-3 py-1 rounded-md text-[10px] md:text-xs font-black uppercase tracking-widest shadow-lg shadow-red-900/50">
+                Top #1
+              </span>
+              <span className="flex items-center gap-1 text-yellow-400 text-sm font-bold bg-black/40 backdrop-blur-md px-2 py-1 rounded border border-white/10">
+                <Star size={14} fill="currentColor" /> {heroMovie.vote_average.toFixed(1)}
+              </span>
+            </div>
 
-          <div className="flex gap-4 pt-4">
-            {/* BOTÓN REPRODUCIR DEL BANNER (Ahora funciona) */}
-            <Link href={`/movie/${heroMovie.id}`}>
-              <button className="bg-white text-black px-8 py-3 rounded font-bold flex items-center gap-2 hover:bg-gray-200 transition">
-                <Play fill="black" size={20} /> Reproducir
+            {/* Título Gigante */}
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-none tracking-tight drop-shadow-2xl">
+              {heroMovie.title || heroMovie.name}
+            </h1>
+
+            {/* Descripción (Limitada a 3 líneas) */}
+            <p className="text-gray-200 text-base md:text-xl font-medium line-clamp-3 max-w-2xl drop-shadow-md text-shadow">
+              {heroMovie.overview}
+            </p>
+            
+            {/* Botones de Acción Estilizados */}
+            <div className="flex items-center gap-4 pt-4">
+              <Link href={`/movie/${heroMovie.id}`}>
+                <button className="bg-white text-black hover:bg-gray-200 px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-3 transition-transform active:scale-95 shadow-xl shadow-white/10">
+                  <Play fill="black" size={24} /> 
+                  Reproducir
+                </button>
+              </Link>
+              
+              <button className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20 px-8 py-4 rounded-xl font-bold text-lg flex items-center gap-3 transition-transform active:scale-95">
+                <Info size={24} /> 
+                Más Info
               </button>
-            </Link>
-
-            <button className="bg-gray-500/40 backdrop-blur-md text-white px-6 py-3 rounded font-bold flex items-center gap-2 hover:bg-gray-500/60 transition border border-white/10">
-              <Info size={20} /> Más Info
-            </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* --- 2. CARRILES DE PELÍCULAS --- */}
-      <div className="px-6 md:px-12 space-y-10 -mt-20 relative z-10">
-        {/* Fila: Películas Populares */}
-        <section>
-          <h2 className="text-xl font-bold mb-4 text-gray-200 flex items-center gap-2">
-            <span className="w-1 h-6 bg-yellow-500 rounded-full"></span>
-            Películas Populares
-          </h2>
+      {/* --- 2. CARRILES (SLIDERS) --- */}
+      <div className="relative z-20 px-6 md:px-12 space-y-12 -mt-10">
+        
+        {/* Sección: Películas */}
+        <MovieRow title="Tendencias de Hoy" items={trending} />
+        <MovieRow title="Películas Populares" items={movies} />
+        <MovieRow title="Series Más Vistas" items={series} isSeries={true} />
 
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-            {movies.map((movie: any) => (
-              // ENLACE A LA PÁGINA DE LA PELÍCULA
-              <Link href={`/movie/${movie.id}`} key={movie.id}>
-                <div className="min-w-[160px] md:min-w-[200px] snap-start cursor-pointer group">
-                  <div className="relative aspect-[2/3] rounded-lg overflow-hidden border border-white/10 group-hover:border-yellow-500 transition-all duration-300 group-hover:scale-105">
-                    <img
-                      src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                      alt={movie.title}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Play
-                        fill="white"
-                        className="text-white w-12 h-12 drop-shadow-lg"
-                      />
-                    </div>
-                  </div>
-                  <h3 className="mt-2 text-sm font-medium text-gray-400 group-hover:text-white truncate">
-                    {movie.title}
-                  </h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* Fila: Series Top (Estas aún no tienen enlace porque nos falta crear la página de series) */}
-        <section>
-          <h2 className="text-xl font-bold mb-4 text-gray-200 flex items-center gap-2">
-            <span className="w-1 h-6 bg-blue-500 rounded-full"></span>
-            Series del Momento
-          </h2>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-            {series.map((show: any) => (
-              <div
-                key={show.id}
-                className="min-w-[160px] md:min-w-[200px] snap-start cursor-pointer group"
-              >
-                <div className="relative aspect-[2/3] rounded-lg overflow-hidden border border-white/10 group-hover:border-blue-500 transition-all duration-300 group-hover:scale-105">
-                  <img
-                    src={`https://image.tmdb.org/t/p/w500${show.poster_path}`}
-                    alt={show.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <h3 className="mt-2 text-sm font-medium text-gray-400 group-hover:text-white truncate">
-                  {show.name}
-                </h3>
-              </div>
-            ))}
-          </div>
-        </section>
       </div>
     </div>
+  );
+}
+
+// --- COMPONENTE EXTRA: Fila de Películas (Para no repetir código) ---
+function MovieRow({ title, items, isSeries = false }: { title: string, items: any[], isSeries?: boolean }) {
+  return (
+    <section>
+      <h2 className="text-2xl font-bold mb-6 text-white flex items-center gap-3 group cursor-pointer">
+        <div className="w-1.5 h-8 bg-orange-600 rounded-full group-hover:h-10 transition-all duration-300" />
+        {title}
+        <span className="text-xs font-normal text-gray-500 ml-auto mr-4 hidden md:block">Ver todo &rarr;</span>
+      </h2>
+      
+      <div className="flex gap-4 overflow-x-auto pb-8 pt-2 scrollbar-hide snap-x px-2">
+        {items.map((item: any) => (
+          <Link href={`/movie/${item.id}`} key={item.id}>
+            <div className="min-w-[150px] md:min-w-[220px] snap-start cursor-pointer group relative">
+              
+              {/* Contenedor de la Imagen con Efecto Hover */}
+              <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-gray-800 border border-white/5 shadow-2xl transition-all duration-500 ease-out group-hover:scale-105 group-hover:border-orange-500/50 group-hover:shadow-orange-900/20 z-0 group-hover:z-10">
+                <img 
+                  src={`https://image.tmdb.org/t/p/w500${item.poster_path}`} 
+                  alt={item.title || item.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                />
+                
+                {/* Overlay Oscuro al pasar el mouse */}
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2">
+                  <div className="w-12 h-12 bg-orange-600 rounded-full flex items-center justify-center shadow-lg transform scale-0 group-hover:scale-100 transition-transform duration-300 delay-100">
+                    <Play fill="white" size={20} className="text-white ml-1" />
+                  </div>
+                  <span className="text-xs font-bold text-white tracking-widest uppercase mt-2 opacity-0 group-hover:opacity-100 transition-opacity delay-200">
+                    Ver ahora
+                  </span>
+                </div>
+              </div>
+
+              {/* Título Debajo */}
+              <div className="mt-3 px-1">
+                <h3 className="text-sm md:text-base font-semibold text-gray-300 group-hover:text-white truncate transition-colors">
+                  {item.title || item.name}
+                </h3>
+                <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                  <span>{new Date(item.release_date || item.first_air_date || Date.now()).getFullYear()}</span>
+                  <span>•</span>
+                  <span className="border border-gray-600 px-1 rounded text-[10px]">HD</span>
+                </div>
+              </div>
+
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
