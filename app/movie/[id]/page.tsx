@@ -1,7 +1,7 @@
 import { getMovieDetails } from '@/app/lib/tmdb';
 import { Star, Clock, Calendar, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import VideoPlayer from '@/app/components/videoplayer'; // <--- IMPORTAMOS EL NUEVO COMPONENTE
+import VideoPlayer from '@/app/components/videoplayer';
 
 export default async function MoviePage({ params }: { params: { id: string } }) {
   const movie = await getMovieDetails(params.id);
@@ -9,18 +9,19 @@ export default async function MoviePage({ params }: { params: { id: string } }) 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans">
       
-      {/* 1. FONDO DIFUMINADO (BACKDROP) */}
+      {/* 1. FONDO DIFUMINADO */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-black/60 z-10" />
         <img 
           src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`} 
+          alt={movie.title} // <--- CORRECCIÓN: Agregamos alt
           className="w-full h-full object-cover opacity-30 blur-sm scale-105"
         />
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 max-w-6xl">
         
-        {/* HEADER DE NAVEGACIÓN */}
+        {/* HEADER */}
         <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition group">
           <div className="p-2 bg-white/5 rounded-full group-hover:bg-white/10 transition">
              <ArrowLeft size={20} />
@@ -28,18 +29,19 @@ export default async function MoviePage({ params }: { params: { id: string } }) 
           <span className="font-bold">Volver al Inicio</span>
         </Link>
 
-        {/* 2. AQUÍ USAMOS EL NUEVO REPRODUCTOR "MULTI-SERVIDOR" */}
+        {/* 2. REPRODUCTOR */}
         <div className="mb-10">
            <VideoPlayer id={params.id} />
         </div>
 
-        {/* 3. INFO DE LA PELÍCULA (Diseño mejorado) */}
+        {/* 3. INFO */}
         <div className="flex flex-col md:flex-row gap-8 bg-white/5 p-6 rounded-2xl border border-white/5 backdrop-blur-sm">
           
-          {/* Poster Vertical */}
+          {/* Poster */}
           <div className="hidden md:block w-56 flex-shrink-0">
             <img 
               src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} 
+              alt={`Poster de ${movie.title}`} // <--- CORRECCIÓN: Agregamos alt
               className="w-full rounded-xl shadow-2xl shadow-black/50 border border-white/10"
             />
           </div>
@@ -71,7 +73,6 @@ export default async function MoviePage({ params }: { params: { id: string } }) 
               {movie.overview}
             </p>
 
-            {/* Géneros */}
             <div className="flex flex-wrap gap-2 pt-2">
               {movie.genres.map((g: any) => (
                 <span key={g.id} className="text-xs font-bold border border-white/20 px-3 py-1 rounded-full text-gray-400 hover:text-white hover:border-white transition cursor-default">
