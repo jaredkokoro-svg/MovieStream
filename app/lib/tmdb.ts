@@ -9,7 +9,10 @@ async function fetchTMDB(endpoint: string) {
     next: { revalidate: 3600 } // Cachear por 1 hora (para que sea rápido)
   });
   
-  if (!res.ok) throw new Error('Fallo al conectar con TMDB');
+  if (!res.ok) {
+    console.log("Status TMDB:", res.status);
+    throw new Error(`Fallo al conectar con TMDB. Status: ${res.status}`);
+  };
   return res.json();
 }
 

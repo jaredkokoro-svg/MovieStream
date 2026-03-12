@@ -31,7 +31,9 @@ export default async function MoviePage({ params }: { params: { id: string } }) 
 
         {/* 2. REPRODUCTOR */}
         <div className="mb-10">
-           <VideoPlayer id={params.id} />
+           <VideoPlayer id={movie.id.toString()} 
+  titulo={movie.title} 
+  anio={movie.release_date.substring(0, 4)} />
         </div>
 
         {/* 3. INFO */}

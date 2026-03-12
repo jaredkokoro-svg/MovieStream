@@ -1,70 +1,43 @@
 'use client';
 
-import { useState } from 'react';
-import { Server, Globe, Settings, PlayCircle } from 'lucide-react';
+import { PlayCircle, CheckCircle2 } from 'lucide-react';
 
-export default function VideoPlayer({ id }: { id: string }) {
-  // LISTA DE SERVIDORES ACTUALIZADA (2026)
-  const servers = [
-    // 1. El que ya sabes que funciona
-    { name: "Plus (Rápido)", url: `https://vidsrc.to/embed/movie/${id}` },
-    
-    // 2. Multiembed: Este es BUENÍSIMO, busca en varios lados
-    { name: "Multi (Recomendado)", url: `https://multiembed.mov/?video_id=${id}&tmdb=1` },
-    
-    // 3. VidSrc CC: Una versión alternativa muy estable
-    { name: "Alpha (Estable)", url: `https://vidsrc.cc/v2/embed/movie/${id}` },
-    
-    // 4. XYZ: Otro espejo por si todo falla
-    { name: "Backup (XYZ)", url: `https://vidsrc.xyz/embed/movie?tmdb=${id}` },
-  ];
-
-  const [currentServer, setCurrentServer] = useState(servers[0]);
+export default function VideoPlayer({ id, titulo, anio }: { id: string, titulo?: string, anio?: string }) {
+  
+  // LA MAGIA: Usamos un proveedor global que busca la película solo con el ID de TMDB
+  // Proveedor confiable y muy usado en la comunidad: vidsrc.me
+  const videoUrl = `https://vidsrc.me/embed/movie?tmdb=${id}`;
 
   return (
     <div className="space-y-4">
       
-      {/* PANTALLA DE TV */}
-      <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10 relative group z-10">
+      {/* PANTALLA DE TV (IFRAME DIRECTO) */}
+      <div className="w-full aspect-video bg-[#050505] rounded-2xl overflow-hidden shadow-2xl border border-white/10 relative z-10">
         <iframe 
-          key={currentServer.name}
-          src={currentServer.url}
-          className="w-full h-full"
+          src={videoUrl}
+          className="w-full h-full border-0"
           allowFullScreen
-          allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
-          title="Reproductor"
-        />
+          allow="autoplay; fullscreen"
+          title={`Reproductor - ${titulo || 'Película'}`}
+        ></iframe>
       </div>
 
-      {/* CONTROL REMOTO (SELECTOR) */}
-      <div className="bg-[#1a1a1a] p-4 rounded-xl border border-white/5">
-        <div className="flex items-center gap-2 mb-3 text-gray-400 text-sm font-bold uppercase tracking-wider">
-          <Server size={14} /> Fuente de Video: <span className="text-white">{currentServer.name}</span>
+      {/* PANEL DE ESTADO */}
+      <div className="bg-[#1a1a1a] p-4 rounded-xl border border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="flex items-center gap-2 text-gray-400 text-sm font-bold uppercase tracking-wider">
+          <PlayCircle size={16} className="text-green-500" /> 
+          Servidor: 
+          <span className="text-green-500">
+            VidSrc (Auto-Embed API)
+          </span>
         </div>
         
-        <div className="flex flex-wrap gap-3">
-          {servers.map((server) => (
-            <button
-              key={server.name}
-              onClick={() => setCurrentServer(server)}
-              className={`
-                px-4 py-3 rounded-lg text-xs md:text-sm font-bold flex items-center gap-2 transition-all border
-                ${currentServer.name === server.name 
-                  ? "bg-orange-600 text-white border-orange-500 shadow-lg shadow-orange-900/40 scale-105" 
-                  : "bg-black/40 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white"
-                }
-              `}
-            >
-              {currentServer.name === server.name ? <PlayCircle size={16} /> : <Globe size={16} />}
-              {server.name}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 px-4 py-2 rounded-lg">
+          <CheckCircle2 size={16} className="text-green-500" />
+          <span className="text-xs font-bold text-green-500 tracking-wider">
+            CONECTADO POR ID: {id}
+          </span>
         </div>
-        
-        <p className="mt-4 text-[10px] md:text-xs text-gray-500 flex items-center gap-1 opacity-70">
-          <Settings size={12} />
-          Tip: Prueba el servidor Multi si buscas audio latino.
-        </p>
       </div>
 
     </div>
