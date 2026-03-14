@@ -1,13 +1,12 @@
 // app/lib/tmdb.ts
 
-// 1. LEEMOS LA LLAVE DESDE LA BÓVEDA SECRETA (.env)
-const API_KEY = process.env.TMDB_API_KEY; 
+const API_KEY = process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_TMDB_API_KEY; 
 const BASE_URL = 'https://api.themoviedb.org/3';
 
+// 1. FUNCIÓN MAESTRA (Usada por los carruseles)
 export async function fetchTMDB(endpoint: string) {
-  // Protección por si la llave no carga
   if (!API_KEY) {
-    console.error("Error: TMDB_API_KEY no está definida en el archivo .env");
+    console.error("⚠️ Error: TMDB_API_KEY no detectada.");
     return { results: [] };
   }
 
@@ -15,22 +14,19 @@ export async function fetchTMDB(endpoint: string) {
   const urlFinal = `${BASE_URL}${endpoint}${separador}api_key=${API_KEY}&language=es-MX`;
 
   try {
-    const res = await fetch(urlFinal, {
-      next: { revalidate: 3600 } 
-    });
+    const res = await fetch(urlFinal, { next: { revalidate: 3600 } });
     
     if (!res.ok) {
-      console.log("Status TMDB:", res.status);
+      console.log(`[TMDB Log] Status ${res.status} en: ${endpoint}`);
       return { results: [] };
-    };
+    }
     return res.json();
   } catch (error) {
-    console.error("Fallo de red TMDB:", error);
     return { results: [] };
   }
 }
 
-// ... (Aquí dejas el resto de tus funciones getTrending, getPopularMovies, etc. intactas) ...
+// 2. FUNCIONES DE CATEGORÍAS
 export async function getTrending() {
   const data = await fetchTMDB('/trending/all/day');
   return data.results || [];
@@ -51,9 +47,33 @@ export async function searchMulti(query: string) {
   return data.results || [];
 }
 
+// 3. DETALLES DE PELÍCULA (Aquí estaba el error 404 en Vercel)
 export async function getMovieDetails(id: string) {
   if (!API_KEY) return null;
-  const res = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=es-MX`);
-  if (!res.ok) return null;
-  return res.json();
+
+  try {
+    const res = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=es-MX`);
+    
+    // Parche: Si no existe la peli, devolvemos null en vez de lanzar Error
+    if (!res.ok) {
+      console.error(`[Vercel Fix] Película no encontrada ID: ${id}`);
+      return null;
+    }
+    return res.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+// 4. DETALLES DE SERIE
+export async function getTvDetails(id: string) {
+  if (!API_KEY) return null;
+
+  try {
+    const res = await fetch(`${BASE_URL}/tv/${id}?api_key=${API_KEY}&language=es-MX`);
+    if (!res.ok) return null;
+    return res.json();
+  } catch (e) {
+    return null;
+  }
 }
