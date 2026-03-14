@@ -1,19 +1,17 @@
 import Link from 'next/link';
 import { PlayCircle, SearchX } from 'lucide-react';
-import { searchMulti } from '@/app/lib/tmdb'; // Tu función de búsqueda
+import { searchMulti } from '@/app/lib/tmdb';
 
-// Next.js pasa automáticamente los parámetros de la URL (searchParams)
 export default async function SearchPage({ searchParams }: { searchParams: { q: string } }) {
   const query = searchParams.q;
-  // Más abajo, dentro del map: Decide a qué URL mandarte
-  const isMovie = item.media_type === 'movie';
-  const url = isMovie ? `/movie/${item.id}` : `/serie/${item.id}`;
   
-  // Usamos tu función para buscar en TMDB
+  // 1. Buscamos en TMDB
   const results = query ? await searchMulti(query) : [];
 
-  // Filtramos para mostrar solo películas y series (quitamos resultados de personas)
-  const filteredResults = results.filter((item: any) => item.media_type === 'movie' || item.media_type === 'tv');
+  // 2. Filtramos para que solo salgan Películas (movie) y Series (tv)
+  const filteredResults = results.filter((item: any) => 
+    item.media_type === 'movie' || item.media_type === 'tv'
+  );
 
   return (
     <main className="min-h-screen bg-[#141414] text-white pt-24 pb-20 px-4 md:px-12">
@@ -29,10 +27,11 @@ export default async function SearchPage({ searchParams }: { searchParams: { q: 
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
           {filteredResults.map((item: any) => {
+            // ✅ LA LÓGICA AHORA VIVE AQUÍ ADENTRO (Donde 'item' sí existe)
             const isMovie = item.media_type === 'movie';
-            const url = isMovie ? `/movie/${item.id}` : `/serie/${item.id}`; // Preparando ruta de series
+            const url = isMovie ? `/movie/${item.id}` : `/serie/${item.id}`;
             const title = item.title || item.name;
-            const year = (item.release_date || item.first_air_date)?.substring(0, 4);
+            const year = (item.release_date || item.first_air_date)?.substring(0, 4) || 'N/A';
 
             return (
               <Link 
@@ -45,18 +44,20 @@ export default async function SearchPage({ searchParams }: { searchParams: { q: 
                     src={`https://image.tmdb.org/t/p/w500${item.poster_path}`} 
                     alt={title}
                     className="w-full h-full object-cover"
-                    loading="lazy"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-zinc-800 text-center p-2 text-sm text-gray-400">
-                    Sin Imagen
+                  <div className="w-full h-full flex items-center justify-center bg-zinc-800 text-center p-2 text-xs text-gray-500">
+                    Sin Poster
                   </div>
                 )}
                 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
                   <PlayCircle className="text-white w-10 h-10 mx-auto mb-2 opacity-80" />
-                  <p className="text-white text-xs font-bold text-center line-clamp-2">{title}</p>
-                  <p className="text-gray-300 text-[10px] text-center mt-1">{year}</p>
+                  <p className="text-white text-[10px] font-bold text-center line-clamp-2 uppercase">{title}</p>
+                  <div className="flex justify-between items-center mt-2 text-[10px] text-gray-300 font-semibold">
+                    <span>{year}</span>
+                    <span className="text-green-400">★ {item.vote_average?.toFixed(1)}</span>
+                  </div>
                 </div>
               </Link>
             );
