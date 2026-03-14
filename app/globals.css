@@ -25,3 +25,11 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+/* Ocultar barra de desplazamiento manteniendo la funcionalidad */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

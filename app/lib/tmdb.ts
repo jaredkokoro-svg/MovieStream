@@ -1,47 +1,59 @@
 // app/lib/tmdb.ts
 
-const API_KEY = '4916d2427a85c431815c7cfa78116c48'; // <--- OJO AQUÍ
+// 1. LEEMOS LA LLAVE DESDE LA BÓVEDA SECRETA (.env)
+const API_KEY = process.env.TMDB_API_KEY; 
 const BASE_URL = 'https://api.themoviedb.org/3';
 
-// Función genérica para pedir datos
-async function fetchTMDB(endpoint: string) {
-  const res = await fetch(`${BASE_URL}${endpoint}?api_key=${API_KEY}&language=es-MX`, {
-    next: { revalidate: 3600 } // Cachear por 1 hora (para que sea rápido)
-  });
-  
-  if (!res.ok) {
-    console.log("Status TMDB:", res.status);
-    throw new Error(`Fallo al conectar con TMDB. Status: ${res.status}`);
-  };
-  return res.json();
+export async function fetchTMDB(endpoint: string) {
+  // Protección por si la llave no carga
+  if (!API_KEY) {
+    console.error("Error: TMDB_API_KEY no está definida en el archivo .env");
+    return { results: [] };
+  }
+
+  const separador = endpoint.includes('?') ? '&' : '?';
+  const urlFinal = `${BASE_URL}${endpoint}${separador}api_key=${API_KEY}&language=es-MX`;
+
+  try {
+    const res = await fetch(urlFinal, {
+      next: { revalidate: 3600 } 
+    });
+    
+    if (!res.ok) {
+      console.log("Status TMDB:", res.status);
+      return { results: [] };
+    };
+    return res.json();
+  } catch (error) {
+    console.error("Fallo de red TMDB:", error);
+    return { results: [] };
+  }
 }
 
-// 1. Obtener Tendencias (Lo que sale en la portada)
+// ... (Aquí dejas el resto de tus funciones getTrending, getPopularMovies, etc. intactas) ...
 export async function getTrending() {
   const data = await fetchTMDB('/trending/all/day');
-  return data.results;
+  return data.results || [];
 }
 
-// 2. Obtener Películas Populares
 export async function getPopularMovies() {
   const data = await fetchTMDB('/movie/popular');
-  return data.results;
+  return data.results || [];
 }
 
-// 3. Obtener Series Populares
 export async function getPopularSeries() {
   const data = await fetchTMDB('/tv/popular');
-  return data.results;
+  return data.results || [];
 }
 
-// 4. Buscar (Para tu barra de búsqueda futura)
 export async function searchMulti(query: string) {
   const data = await fetchTMDB(`/search/multi?query=${encodeURIComponent(query)}`);
-  return data.results;
+  return data.results || [];
 }
 
-// 5. Obtener Detalles de una Película por ID
 export async function getMovieDetails(id: string) {
-  const data = await fetchTMDB(`/movie/${id}`);
-  return data;
+  if (!API_KEY) return null;
+  const res = await fetch(`${BASE_URL}/movie/${id}?api_key=${API_KEY}&language=es-MX`);
+  if (!res.ok) return null;
+  return res.json();
 }
