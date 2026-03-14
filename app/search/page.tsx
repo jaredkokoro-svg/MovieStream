@@ -18,7 +18,7 @@ export default async function SearchPage({ searchParams }: { searchParams: { q: 
   return (
     <main className="min-h-screen bg-[#141414] text-white pt-24 pb-20 px-4 md:px-12">
       <h1 className="text-2xl md:text-3xl font-bold mb-8 text-gray-200">
-        Resultados para: <span className="text-white">"{query}"</span>
+        Resultados para: <span className="text-white">{`"${query}"`}</span>
       </h1>
 
       {filteredResults.length === 0 ? (
